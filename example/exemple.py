@@ -10,7 +10,7 @@ import os
 calculation= 1 #1 pour rapide, 2 pour full cascade
 num_ions = 1e2 #nombre d'ions
 subbing = True #Si True, pas d'affichage obligatoire pour le batch
-
+angle_ions=15
     #Sur les dossiers d'enregistrement et de SRIM
 save_directory=None #Si None --> dossier de lecture
 SRIM_dir=os.path.expanduser('~/SRIM') #Dossier SRIM
@@ -52,5 +52,5 @@ layer2 = Layer({
 
 target = Target([layer1,layer2]) #reconstitution du mat�riaux
 
-auto_steps(ions,target,num_ions,calculation,save_directory,SRIM_dir,subbing,steps)
+auto_steps(ions,target,num_ions,calculation,save_directory,SRIM_dir,subbing,steps,angle_ions)
 merge_results()
