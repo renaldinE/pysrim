@@ -20,7 +20,7 @@ from .output import (
 )
 from pathlib import Path
 import datetime
-
+import sys
 
 def run_calculation(ion, target, num_ions, calculation=2, save_directory=None, SRIM_dir='~/SRIM', subbing=False, plot_limits=None, angle_ions=0):
     print('\t%s\t%s\t%s\t\t%d\t\t%s\t\t%s' % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'), ion.symbol, ion.energy,num_ions,plot_limits,angle_ions))
@@ -29,6 +29,7 @@ def run_calculation(ion, target, num_ions, calculation=2, save_directory=None, S
     else :
         srim = SRIM(target, ion, number_ions=num_ions, calculation=calculation, collisions=2, random_seed=randint(0, 100000),plot_xmin=plot_limits[0],plot_xmax=plot_limits[1],angle_ions=angle_ions)
     results = srim.run(SRIM_dir,subbing=subbing)
+    sys.stdout.flush()
     if save_directory==None :
         save_directory = os.getcwd()
     local_dir=os.path.join(save_directory,('%s-%s-%s'%(ion.symbol,ion.energy,str(plot_limits[0])+'-'+str(plot_limits[1]))))
