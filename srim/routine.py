@@ -23,7 +23,7 @@ import datetime
 
 
 def run_calculation(ion, target, num_ions, calculation=2, save_directory=None, SRIM_dir='~/SRIM', subbing=False, plot_limits=None, angle_ions=0):
-    print('\t%s\t%s\t%s\t\t%d\t\t%s' % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'), ion.symbol, ion.energy,num_ions,plot_limits))
+    print('\t%s\t%s\t%s\t\t%d\t\t%s\t\t%s' % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S'), ion.symbol, ion.energy,num_ions,plot_limits,angle_ions))
     if plot_limits==None :
         srim = SRIM(target, ion, number_ions=num_ions, calculation=calculation, collisions=2, random_seed=randint(0, 100000),angle_ions=angle_ions)
     else :
@@ -40,7 +40,7 @@ def run_calculation(ion, target, num_ions, calculation=2, save_directory=None, S
 def auto_steps(ions,target,num_ions,calculation,save_directory,SRIM_dir,subbing,steps,angle_ions):
     print('*** Automated SRIM on Python : Starting ***')
     print('\n')
-    print('\t%s\t\t\t%s\t%s\t%s\t%s' % ('Date','Symbole', 'Energie (eV)','Ions calculés','Step'))
+    print('\t%s\t\t\t%s\t%s\t%s\t%s\t\t%s' % ('Date','Symbole', 'Energie (eV)','Ions calculés','Step','Angle'))
     for step in steps :
         run_calculation(Ion(**ions), target, num_ions, calculation=calculation, save_directory=save_directory, SRIM_dir=SRIM_dir, subbing=subbing, plot_limits=step, angle_ions=angle_ions)
     print('*** Automated SRIM on Python : End ***')
@@ -48,9 +48,18 @@ def auto_steps(ions,target,num_ions,calculation,save_directory,SRIM_dir,subbing,
 def auto_ions(ions,target,num_ions,calculation,save_directory,SRIM_dir,subbing,steps,angle_ions):
     print('*** Automated SRIM on Python : Starting ***')
     print('\n')
-    print('\t%s\t\t\t%s\t%s\t%s\t%s' % ('Date','Symbole', 'Energie (eV)','Ions calculés','Step'))
+    print('\t%s\t\t\t%s\t%s\t%s\t%s\t\t%s' % ('Date','Symbole', 'Energie (eV)','Ions calculés','Step','Angle'))
     for ion in ions :
         run_calculation(Ion(**ion), target, num_ions, calculation=calculation, save_directory=save_directory, SRIM_dir=SRIM_dir, subbing=subbing, angle_ions=angle_ions)
+    print('*** Automated SRIM on Python : End ***')
+
+def auto_angle(ions, target, num_ions, calculation, save_directory, SRIM_dir, subbing, steps, angle_ions):
+    print('*** Automated SRIM on Python : Starting ***')
+    print('\n')
+    print('\t%s\t\t\t%s\t%s\t%s\t%s\t\t%s' % ('Date', 'Symbole', 'Energie (eV)', 'Ions calculés', 'Step', 'Angle'))
+    for angle in angle_ions:
+        run_calculation(Ion(**ions), target, num_ions, calculation=calculation, save_directory=save_directory,
+                        SRIM_dir=SRIM_dir, subbing=subbing, angle_ions=angle_ions)
     print('*** Automated SRIM on Python : End ***')
 
 def merge_results() :
