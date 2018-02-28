@@ -29,7 +29,6 @@ def run_calculation(ion, target, num_ions, calculation=2, save_directory=None, S
     else :
         srim = SRIM(target, ion, number_ions=num_ions, calculation=calculation, collisions=2, random_seed=randint(0, 100000),plot_xmin=plot_limits[0],plot_xmax=plot_limits[1],angle_ions=angle_ions)
     results = srim.run(SRIM_dir,subbing=subbing)
-    sys.stdout.flush()
     if save_directory==None :
         save_directory = os.getcwd()
     local_dir=os.path.join(save_directory,('%s-%s-%s'%(ion.symbol,ion.energy,str(plot_limits[0])+'-'+str(plot_limits[1]))))
@@ -84,8 +83,8 @@ def merge_results() :
         for line in local_vacancy :
             if line.startswith('-----------  ') :
                 vacancy_start=local_vacancy.index(line)+1
-        vacancy_end=local_vacancy.index(' To convert to Energy Lost - multiply by Average Binding Energy =  1  eV/Vacancy\n')-1
-    
+        vacancy_end=len(local_vacancy)-1
+
         for i in range(range_start,range_end) :
             total_range+=(local_range[i])
         for i in range(vacancy_start,vacancy_end) :
