@@ -7,7 +7,7 @@ PySrim is a code written in python to simulate via Monte Carlo ion treveling thr
 ## Introduction
 
 This fork is a modified version of the original code of pysrim. This version in only intended to work on a unix machine. The use of a linux machine allow you to get rid of one main disadvanage : as SRIM is poorly written in visual basic, the simple display of the calculation window, even without any plot, slow down the calculation.
-In order to speed up calculations, this forked pysrim warp the display using the "xvfb-run" command. All the display tasks are parsed and the calculation only is running.
+In order to speed up calculations, this forked pysrim warp the display using the "xvfb-run" command. All the display tasks are hidden and the calculation only is running.
 
 ## Benchmarking
 
