@@ -405,9 +405,78 @@ class Backscat(object):
 
 
 class Transmit(object):
-    """ The kinetics of all transmitted ions (energy, location and trajectory)
-    """
-    pass
+    """ Read TRANSMIT.txt file fenerate by pysrim TRIM.run() """
+    
+    def __init__(self, directory, filename='TRANSMIT.txt'):
+        '''reads the file named TRANSMIT.txt in SRIM Outputs folder'''
+        
+        try:
+            with open(os.path.join(directory, filename), 'rb') as f:
+                output = f.read()
+        except FileNotFoundError as e:
+            print(e)
+            
+            # User might forgot to add folder 'SRIM Output' to the file path
+            directory_corrected = os.path.join(directory, 'SRIM Outputs')
+            print('Attempting searching for TRANSMIT.txt file in ' + directory_corrected + ' ...')
+            with open(os.path.join(directory_corrected, filename), 'rb') as f:
+                output = f.read()
+            
+            print('\nTRANSMIT.txt file found.')
+                
+        self._input_data = self._read_trim_inputs(output)
+        self._output_data = self._read_data(output)
+
+    def _read_trim_inputs(self, output):
+        ''' Example line to read from the file:
+            ====== TRIM Calc.=  H(10 MeV) ==> Ti_1+Ni_1(  50 um) ========================= '''
+        pattern_trim_calc = r'=+\s+TRIM\s+Calc\.=\s+([a-zA-Z]+)\((\d+)\s*([a-zA-Z]+)\)\s+==>\s+(.+?)\s*\(\s+(\d+)\s+([a-zA-Z]+)\)'
+        match = re.search(pattern_trim_calc.encode('utf-8'), output)
+        
+        if match:
+            out_dict = {
+                'projectile': match.group(1),
+                'beam_energy': (float(match.group(2)), match.group(3)), # (absolute value, unit of measure)
+                'layer_name': match.group(4),
+                'layer_thickness': (float(match.group(5)), match.group(6)) # (absolute value, unit of measure)
+                }
+            
+        return out_dict
+    
+    def _read_data(self, output):
+        ''' TRANSMIT file header:
+        ============================== SRIM-2013.00 ==============================
+        ==============================================================================
+        =================  TRANSMIT.txt : File of Transmitted Ions  ==================
+        =  This file tabulates the kinetics of ions or atoms leaving the target.     =
+        =  Column #1: S= Sputtered Atom, B= Backscattered Ion, T= Transmitted Ion.   =
+        =  Col.#2: Ion Number, Col.#3: Z of atom leaving, Col.#4: Atom energy (eV).  =
+        =  Col.#5-7: Last location:  X= Depth into target, Y,Z= Transverse axes.     =
+        =  Col.#8-10: Cosines of final trajectory.                                   =
+        = *** This data file is in the same format as TRIM.DAT (see manual for uses).=
+        ====== TRIM Calc.=  <Projectile atom>(<Abs. value energy> MeV) ==> <Layers' names>(  <total thickness of layers> <unit of measure>) =========================
+         Ion  Atom   Energy        Depth       Lateral-Position        Atom Direction      
+         Numb Numb    (eV)          X(A)        Y(A)       Z(A)      Cos(X)  Cos(Y) Cos(Z) '''
+        
+        # Last header pattern
+        pattern_headers = r'\s*Numb\s+Numb\s+\(eV\)\s+X\(A\)\s+Y\(A\)\s+Z\(A\)\s+Cos\(X\)\s+Cos\(Y\)\s+Cos\(Z\)\s*'
+        
+        # Find location of first data line
+        headers_match = re.search(pattern_headers.encode('utf-8'), output)
+        start_idx = headers_match.end()
+        
+        # Extract raw data
+        rawdata = BytesIO(output[start_idx:]).read().decode('utf-8')
+        
+        # Process the data
+        data = [list(re.split(r'\s+', line.strip())) for line in rawdata.split('\r\n') if len(line.strip()) > 0]
+        
+        df_output = pd.DataFrame(
+            data,
+            columns=['particle_type', 'ion_number', 'z_leaving_atom', 'atom_energy', 'depth', 'Y_axis', 'Z_axis', 'cos_x', 'cos_y', 'cos_z']
+            )
+        
+        return df_output
 
 
 class Sputter(object):
